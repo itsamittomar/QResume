@@ -1,24 +1,42 @@
 package main
 
 import (
+	"log"
+	"os"
+	"fmt"
+	"time"
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"QResume/controllers"
 	"QResume/repo"
 	"QResume/service"
 	"QResume/models"
-	"log"
-
-	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 func main() {
-	// Database connection
-	dsn := "root:password@tcp(localhost:3306)/qresume"
+	// Retry database connection
+	var db *gorm.DB
+	var err error
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", 
+		os.Getenv("DB_USER"), 
+		os.Getenv("DB_PASSWORD"), 
+		os.Getenv("DB_HOST"), 
+		os.Getenv("DB_PORT"), 
+		os.Getenv("DB_NAME"))
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// Retry loop for 30 seconds
+	for i := 0; i < 30; i++ {
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		log.Printf("Failed to connect to the database, retrying... %v", err)
+		time.Sleep(3 * time.Second)
+	}
+
 	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
+		log.Fatalf("Failed to connect to the database after multiple attempts: %v", err)
 	}
 
 	// Automigrate the User model
