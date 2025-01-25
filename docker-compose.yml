@@ -1,35 +1,30 @@
-version: '3.8'
-
+version: '3'
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_container
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: qresume
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+    networks:
+      - app-network
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: qresume_app
-    depends_on:
-      - db
+  qresume-app:
+    build: .
+    environment:
+      - DB_HOST=db  # Ensure the app is pointing to the 'db' service name
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=qresume
     ports:
       - "8080:8080"
-    environment:
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=qresume
+    depends_on:
+      - db
+    networks:
+      - app-network
 
-volumes:
-  db_data:
+networks:
+  app-network:
+    driver: bridge

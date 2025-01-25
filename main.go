@@ -14,7 +14,8 @@ import (
 
 func main() {
 	// Database connection
-	dsn := "user:password@tcp(db:3306)/qresume?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:password@tcp(localhost:3306)/qresume"
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
