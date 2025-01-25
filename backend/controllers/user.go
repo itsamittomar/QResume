@@ -30,7 +30,7 @@ func (u *UserController) RegisterUser(c *gin.Context) {
 	}
 
 	// Call the service to register the user
-	_, err := u.UserService.RegisterUser(&userDetails)
+	err := u.UserService.RegisterUser(&userDetails)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

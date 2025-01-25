@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors" // Import CORS package
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"QResume/controllers"
@@ -52,8 +53,17 @@ func main() {
 	// Initialize Gin router
 	r := gin.Default()
 
+	// CORS middleware setup
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Allow your frontend origin
+		AllowMethods:     []string{"GET", "POST"}, // Allowed HTTP methods
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allowed headers
+		AllowCredentials: true,
+		ExposeHeaders:    []string{"Content-Length"},
+	}))
+
 	// Define routes
-	r.POST("/register", userController.RegisterUser)
+	r.POST("/sign-on", userController.RegisterUser)
 
 	// Start the server
 	if err := r.Run(":8080"); err != nil {
