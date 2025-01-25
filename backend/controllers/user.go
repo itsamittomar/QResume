@@ -37,5 +37,5 @@ func (u *UserController) RegisterUser(c *gin.Context) {
 	}
 
 	// Respond with success
-	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "User signed on successfully"})
 }
