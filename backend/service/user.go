@@ -9,6 +9,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/skip2/go-qrcode"
 	"golang.org/x/crypto/bcrypt"
+	"net/url"
 	"os"
 )
 
@@ -56,9 +57,7 @@ func (u *UserService) RegisterUser(userDetails *contracts.Register) error {
 }
 
 func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
-	// Hash the password
-
-	// Create a new detail object
+	// Create a new detail object with updated user details
 	updates := &models.Details{
 		Email:         userDetails.Email,
 		Linkedin:      userDetails.Linkedin,
@@ -68,18 +67,17 @@ func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
 		Scaler:        userDetails.Scaler,
 	}
 
-	qrCodeLinks, err := u.generateQRCode(userDetails)
+	// Generate the combined QR Code link
+	qrCodeURL, err := u.generateQRCode(userDetails)
 	if err != nil {
-		fmt.Println("Error generating QR codes:", err)
+		fmt.Println("Error generating QR code:", err)
 		return err
 	}
 
-	// Update the QR code links in the user details object
-	updates.QRCodeLeetcode = qrCodeLinks["leetcode"]
-	updates.QRCodeScaler = qrCodeLinks["scaler"]
-	updates.QRCodeGeeksForGeeks = qrCodeLinks["geeksforgeeks"]
+	// Update the QR Code URL in the user details (if required)
+	updates.QRCodeURL = qrCodeURL
 
-	// Call the UpdateByEmail function
+	// Call the UpdateByEmail function to update the details in the repository
 	err = u.UserRepo.UpdateByEmail(userDetails.Email, updates)
 	if err != nil {
 		fmt.Println("Error updating user details:", err)
@@ -89,42 +87,37 @@ func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
 	return nil
 }
 
-func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (map[string]string, error) {
-	// Map to hold the generated QR code file paths for each link
-	qrCodeLinks := make(map[string]string)
+func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string, error) {
 
-	// Base directory to store QR codes
-	baseDir := "qrcodes"
+	dir := "qrcodes"
 
-	// Ensure the directory exists
-	if err := os.MkdirAll(baseDir, os.ModePerm); err != nil {
-		return nil, err
-	}
-
-	// Generate a QR code for each link
-	links := map[string]string{
-		"leetcode":      userDetails.Leetcode,
-		"scaler":        userDetails.Scaler,
-		"geeksforgeeks": userDetails.GeeksForGeeks,
-	}
-
-	for platform, url := range links {
-		if url != "" { // Skip if URL is empty
-			// Define the filename for storing the QR code
-			fileName := fmt.Sprintf("%s/%s_%s.png", baseDir, userDetails.Email, platform)
-
-			// Generate the QR code
-			err := qrcode.WriteFile(url, qrcode.Medium, 256, fileName)
-			if err != nil {
-				return nil, fmt.Errorf("failed to generate QR code for %s: %w", platform, err)
-			}
-
-			// Map the platform to its QR code file path or URL
-			qrCodeLinks[platform] = fmt.Sprintf("http://localhost:8080/static/%s", fileName)
+	// Check if the directory exists, and create it if it doesn't
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return "", fmt.Errorf("failed to create QR code directory: %w", err)
 		}
 	}
 
-	return qrCodeLinks, nil
+	// Combine all links into a single URL string
+	combinedURL := fmt.Sprintf(
+		"http://localhost:8080/user?leetcode=%s&scaler=%s&geeksforgeeks=%s",
+		url.QueryEscape(userDetails.Leetcode),
+		url.QueryEscape(userDetails.Scaler),
+		url.QueryEscape(userDetails.GeeksForGeeks),
+	)
+
+	// Define the filename for storing the QR code
+	fileName := fmt.Sprintf("qrcodes/%s_combined.png", userDetails.Email) // Save in the 'qrcodes' directory
+
+	// Generate the QR code
+	err := qrcode.WriteFile(combinedURL, qrcode.Medium, 256, fileName)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate QR code: %w", err)
+	}
+
+	// Return the URL to access the QR code
+	return fmt.Sprintf("http://localhost:8080/static/%s", fileName), nil
 }
 
 // Login handles user login by verifying the password
