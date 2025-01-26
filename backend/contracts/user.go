@@ -5,13 +5,13 @@ type Register struct {
 	Password string `json:"password" binding:"required,min=8"`
 }
 
-
-type UserDetails struct{
-	Name string `json:"name"`
-	Phone string `json:"phone"`
-	Linkedin string `json:"linkedin"`
-	Github string `json:"github"`
-	Leetcode string `json:"leetcode"`
+type UserDetails struct {
+	Email         string `json:"email" binding:"required,email"`
+	Name          string `json:"name"`
+	Phone         string `json:"phone"`
+	Linkedin      string `json:"linkedin"`
+	Github        string `json:"github"`
+	Leetcode      string `json:"leetcode"`
 	GeeksForGeeks string `json:"geeksforgeeks"`
-	Scaler string `json:"scaler"`
-} 
+	Scaler        string `json:"scaler"`
+}

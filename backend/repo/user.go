@@ -25,6 +25,14 @@ func (u *UserRepo) Register(user *models.User) error {
 	return nil
 }
 
+func (u *UserRepo) UpdateByEmail(email string, updates *models.Details) error {
+	// Use GORM to update the fields based on the email
+	if err := u.DB.Model(&models.Details{}).Where("email = ?", email).Updates(updates).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // Login checks if the email and password match a user in the database
 func (u *UserRepo) Login(email string) (*models.User, error) {
 	var user models.User
