@@ -64,7 +64,7 @@ func main() {
 
 	// Define routes
 	r.POST("/sign-on", userController.RegisterUser)
-	r.POST("/update-details", userController.RegisterUser)
+	r.POST("/update-details", userController.UpdateDetails)
 
 	// Start the server
 	if err := r.Run(":8080"); err != nil {
