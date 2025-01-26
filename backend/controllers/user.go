@@ -51,7 +51,7 @@ func (u *UserController) UpdateDetails(c *gin.Context) {
 	}
 
 	// Call the service to register the user
-	err := u.UserService.RegisterUser(&userDetails)
+	err := u.UserService.UpdateDetails(&userDetails)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
