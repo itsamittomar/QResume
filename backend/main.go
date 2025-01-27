@@ -6,7 +6,7 @@ import (
 	"QResume/repo"
 	"QResume/service"
 	"fmt"
-	"github.com/gin-contrib/cors" // Import CORS package
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -56,15 +56,17 @@ func main() {
 	// CORS middleware setup
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},                   // Allow your frontend origin
-		AllowMethods:     []string{"GET", "POST"},                             // Allowed HTTP methods
+		AllowMethods:     []string{"GET", "POST", "PATCH"},                   // Allowed HTTP methods
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allowed headers
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length"},
 	}))
 
 	// Define routes
-	r.POST("/sign-on", userController.RegisterUser)
-	r.POST("/update-details", userController.UpdateDetails)
+	r.POST("api/users/sign-on", userController.RegisterUser)
+	r.PATCH("/api/users/details/:user-email", userController.UpdateDetails)
+	r.GET("/api/users/details/:user-email", userController.GetUserDetails)
+	r.GET("/api/users/my-qr/:user-email", userController.GetUserQRCode)
 
 	// Start the server
 	if err := r.Run(":8080"); err != nil {
