@@ -9,8 +9,8 @@ COPY . .
 # Download dependencies and build the binary
 RUN go mod tidy
 
-# Build for the correct architecture
-RUN GOARCH=amd64 go build -o main .
+# Build a statically linked binary for Alpine
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
 
 # Stage 2: Create a minimal image for running the app
 FROM alpine:latest
