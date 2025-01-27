@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/url"
 	"os"
+	"path/filepath"
 )
 
 type UserService struct {
@@ -57,25 +58,28 @@ func (u *UserService) RegisterUser(userDetails *contracts.Register) error {
 }
 
 func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
-	// Create a new detail object with updated user details
-	updates := &models.Details{
-		Email:         userDetails.Email,
-		Linkedin:      userDetails.Linkedin,
-		Github:        userDetails.Github,
-		Leetcode:      userDetails.Leetcode,
-		GeeksForGeeks: userDetails.GeeksForGeeks,
-		Scaler:        userDetails.Scaler,
+	// Create a new User object with the updated details
+	updates := &models.User{
+		Email: userDetails.Email,
+		Name:  userDetails.Name,
+		Details: models.Details{
+			Email:         userDetails.Email,
+			Phone:         userDetails.Phone,
+			Linkedin:      userDetails.Linkedin,
+			Github:        userDetails.Github,
+			Leetcode:      userDetails.Leetcode,
+			GeeksForGeeks: userDetails.GeeksForGeeks,
+			Scaler:        userDetails.Scaler,
+		},
 	}
 
-	// Generate the combined QR Code link
+	// Generate the QR Code and store it in the User object (assuming QR code is part of User)
 	qrCodeURL, err := u.generateQRCode(userDetails)
 	if err != nil {
 		fmt.Println("Error generating QR code:", err)
 		return err
 	}
-
-	// Update the QR Code URL in the user details (if required)
-	updates.QRCodeURL = qrCodeURL
+	updates.QR = []byte(qrCodeURL) // Assuming the QR code is stored in the QR field
 
 	// Call the UpdateByEmail function to update the details in the repository
 	err = u.UserRepo.UpdateByEmail(userDetails.Email, updates)
@@ -88,18 +92,29 @@ func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
 }
 
 func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string, error) {
+	// Define the directory for storing QR codes
+	// This directory should be volume-mapped in your Docker container
+	dir := "/app/qrcodes"
 
-	dir := "qrcodes"
+	// Get the absolute directory path (useful for logging)
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return "", fmt.Errorf("failed to get absolute directory path: %w", err)
+	}
+	fmt.Println("Using directory path:", absDir)
 
 	// Check if the directory exists, and create it if it doesn't
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err := os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
+	if _, err := os.Stat(absDir); os.IsNotExist(err) {
+		fmt.Println("Directory does not exist. Attempting to create...")
+		if err := os.MkdirAll(absDir, os.ModePerm); err != nil {
 			return "", fmt.Errorf("failed to create QR code directory: %w", err)
 		}
+		fmt.Println("Directory created successfully at:", absDir)
+	} else {
+		fmt.Println("Directory already exists at:", absDir)
 	}
 
-	// Combine all links into a single URL string
+	// Combine all links into a single string
 	combinedURL := fmt.Sprintf(
 		"http://localhost:8080/user?leetcode=%s&scaler=%s&geeksforgeeks=%s",
 		url.QueryEscape(userDetails.Leetcode),
@@ -107,17 +122,17 @@ func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string
 		url.QueryEscape(userDetails.GeeksForGeeks),
 	)
 
-	// Define the filename for storing the QR code
-	fileName := fmt.Sprintf("qrcodes/%s_combined.png", userDetails.Email) // Save in the 'qrcodes' directory
+	// Define the filename for the QR code (using filepath for cross-platform compatibility)
+	fileName := filepath.Join(absDir, fmt.Sprintf("%s_combined.png", userDetails.Email))
 
-	// Generate the QR code
-	err := qrcode.WriteFile(combinedURL, qrcode.Medium, 256, fileName)
-	if err != nil {
+	// Generate and save the QR code to the file
+	if err := qrcode.WriteFile(combinedURL, qrcode.Medium, 256, fileName); err != nil {
 		return "", fmt.Errorf("failed to generate QR code: %w", err)
 	}
+	fmt.Println("QR code successfully generated and saved at:", fileName)
 
-	// Return the URL to access the QR code
-	return fmt.Sprintf("http://localhost:8080/static/%s", fileName), nil
+	// Return the path to the saved QR code
+	return fileName, nil
 }
 
 // Login handles user login by verifying the password

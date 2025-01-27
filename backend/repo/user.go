@@ -25,9 +25,9 @@ func (u *UserRepo) Register(user *models.User) error {
 	return nil
 }
 
-func (u *UserRepo) UpdateByEmail(email string, updates *models.Details) error {
+func (u *UserRepo) UpdateByEmail(email string, updates *models.User) error {
 	// Use GORM to update the fields based on the email
-	if err := u.DB.Model(&models.Details{}).Where("email = ?", email).Updates(updates).Error; err != nil {
+	if err := u.DB.Model(&models.User{}).Where("email = ?", email).Updates(updates).Error; err != nil {
 		return err
 	}
 	return nil
