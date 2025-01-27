@@ -48,3 +48,15 @@ func (u *UserRepo) Login(email string) (*models.User, error) {
 	// Return the user if login is successful
 	return &user, nil
 }
+
+// GetUserByID fetches a user by ID
+func (u *UserRepo) GetUserByID(userID string) (*models.User, error) {
+	var user models.User
+	if err := u.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &user, nil
+}
