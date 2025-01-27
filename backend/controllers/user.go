@@ -60,3 +60,31 @@ func (u *UserController) UpdateDetails(c *gin.Context) {
 	// Respond with success
 	c.JSON(http.StatusOK, gin.H{"message": "User signed on successfully"})
 }
+
+// GetUserDetails fetches user details based on user-id
+func (u *UserController) GetUserDetails(c *gin.Context) {
+	userID := c.Param("user-id")
+
+	// Call the service to get user details
+	userDetails, err := u.UserService.GetUserDetails(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userDetails)
+}
+
+// GetUserQRCode fetches the user's QR code based on user-id
+func (u *UserController) GetUserQRCode(c *gin.Context) {
+	userID := c.Param("user-id")
+
+	// Call the service to get the user's QR code
+	qrCode, err := u.UserService.GetUserQRCode(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.File(qrCode) // Respond with the QR code file
+}
