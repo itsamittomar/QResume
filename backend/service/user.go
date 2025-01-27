@@ -165,3 +165,24 @@ func (u *UserService) HashPassword(password string) (string, error) {
 func (u *UserService) CheckPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
+
+// GetUserDetails fetches user details by ID
+func (u *UserService) GetUserDetails(userID string) (*models.User, error) {
+	return u.UserRepo.GetUserByID(userID)
+}
+
+// GetUserQRCode fetches the path of the user's QR code by ID
+func (u *UserService) GetUserQRCode(userID string) (string, error) {
+	user, err := u.UserRepo.GetUserByID(userID)
+	if err != nil {
+		return "", err
+	}
+
+	// Check if the QR code exists
+	qrCodePath := string(user.QR)
+	if _, err := os.Stat(qrCodePath); os.IsNotExist(err) {
+		return "", fmt.Errorf("QR code not found for user %s", userID)
+	}
+
+	return qrCodePath, nil
+}
