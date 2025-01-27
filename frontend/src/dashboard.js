@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./dashboard.css";
 
+const backendUrl = "http://localhost:8080/api/users";
+
 const Dashboard = () => {
+  const location = useLocation();
+  const { email: userEmail } = location.state || {}; // Retrieve email from state
   const [userDetails, setUserDetails] = useState({
     email: "",
     phone: "",
@@ -14,9 +19,10 @@ const Dashboard = () => {
   const [qrCode, setQrCode] = useState("");
 
   const fetchUserDetails = async () => {
+    if (!userEmail) return; // Ensure email is available
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8080/api/user-details"); // Replace with your API endpoint
+      const response = await fetch(backendUrl + "/details/" + userEmail); // Replace with your API endpoint
       const data = await response.json();
       setUserDetails(data);
     } catch (error) {
@@ -27,10 +33,11 @@ const Dashboard = () => {
   };
 
   const updateUserDetails = async () => {
+    if (!userEmail) return; // Ensure email is available
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8080/api/update-user-details", {
-        method: "PUT",
+      const response = await fetch(backendUrl + "/details/" + userEmail, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,8 +59,9 @@ const Dashboard = () => {
   };
 
   const fetchQrCode = async () => {
+    if (!userEmail) return; // Ensure email is available
     try {
-      const response = await fetch("http://localhost:8080/api/get-qr-code"); // Replace with your API endpoint
+      const response = await fetch(backendUrl + "/my-qr/" + userEmail); // Replace with your API endpoint
       const blob = await response.blob();
       const qrCodeUrl = URL.createObjectURL(blob);
       setQrCode(qrCodeUrl);
@@ -63,7 +71,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchUserDetails();
+    fetchUserDetails(); // Fetch user details on component mount
   }, []);
 
   const handleInputChange = (e) => {
