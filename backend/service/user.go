@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"net/url"
 	"os"
+	"path/filepath"
 )
 
 type UserService struct {
@@ -92,13 +93,25 @@ func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
 
 func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string, error) {
 	// Define the directory for storing QR codes
-	dir := "qrcodes"
+	// This directory should be volume-mapped in your Docker container
+	dir := "/app/qrcodes"
+
+	// Get the absolute directory path (useful for logging)
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return "", fmt.Errorf("failed to get absolute directory path: %w", err)
+	}
+	fmt.Println("Using directory path:", absDir)
 
 	// Check if the directory exists, and create it if it doesn't
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+	if _, err := os.Stat(absDir); os.IsNotExist(err) {
+		fmt.Println("Directory does not exist. Attempting to create...")
+		if err := os.MkdirAll(absDir, os.ModePerm); err != nil {
 			return "", fmt.Errorf("failed to create QR code directory: %w", err)
 		}
+		fmt.Println("Directory created successfully at:", absDir)
+	} else {
+		fmt.Println("Directory already exists at:", absDir)
 	}
 
 	// Combine all links into a single string
@@ -109,18 +122,14 @@ func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string
 		url.QueryEscape(userDetails.GeeksForGeeks),
 	)
 
-	// Define the filename for the QR code
-	fileName := fmt.Sprintf("%s/%s_combined.png", dir, userDetails.Email)
-
-	// Check if directory is accessible
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return "", fmt.Errorf("directory does not exist after creation attempt: %w", err)
-	}
+	// Define the filename for the QR code (using filepath for cross-platform compatibility)
+	fileName := filepath.Join(absDir, fmt.Sprintf("%s_combined.png", userDetails.Email))
 
 	// Generate and save the QR code to the file
 	if err := qrcode.WriteFile(combinedURL, qrcode.Medium, 256, fileName); err != nil {
 		return "", fmt.Errorf("failed to generate QR code: %w", err)
 	}
+	fmt.Println("QR code successfully generated and saved at:", fileName)
 
 	// Return the path to the saved QR code
 	return fileName, nil
