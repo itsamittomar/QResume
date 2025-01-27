@@ -25,8 +25,11 @@ services:
       - db
     networks:
       - app-network
+    # volumes:
+    #   - "D:/Project/QResume/backend/qrcodes:/app/qrcodes"  # Map the Windows directory to the container
     volumes:
-      - "D:/Project/QResume/backend/qrcodes:/app/qrcodes"  # Map the Windows directory to the container
+      - ./qrcodes:/app/qrcodes:rw
+
 
 networks:
   app-network:
