@@ -60,3 +60,14 @@ func (u *UserRepo) GetUserByID(userID string) (*models.User, error) {
 	}
 	return &user, nil
 }
+
+func (u *UserRepo) GetUserByEmail(userEmail string) (*models.User, error) {
+	var user models.User
+	if err := u.DB.Where("email = ?", userEmail).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &user, nil
+}

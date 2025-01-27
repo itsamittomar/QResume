@@ -75,6 +75,7 @@ func (u *UserService) UpdateDetails(userDetails *contracts.UserDetails) error {
 
 	// Generate the QR Code and store it in the User object (assuming QR code is part of User)
 	qrCodeURL, err := u.generateQRCode(userDetails)
+	updates.Details.QRCodeURL = qrCodeURL
 	if err != nil {
 		fmt.Println("Error generating QR code:", err)
 		return err
@@ -123,7 +124,7 @@ func (u *UserService) generateQRCode(userDetails *contracts.UserDetails) (string
 	)
 
 	// Define the filename for the QR code (using filepath for cross-platform compatibility)
-	fileName := filepath.Join(absDir, fmt.Sprintf("%s_combined.png", userDetails.Email))
+	fileName := filepath.Join(absDir, fmt.Sprintf("%s", userDetails.Email))
 
 	// Generate and save the QR code to the file
 	if err := qrcode.WriteFile(combinedURL, qrcode.Medium, 256, fileName); err != nil {
@@ -167,22 +168,23 @@ func (u *UserService) CheckPassword(hashedPassword, password string) error {
 }
 
 // GetUserDetails fetches user details by ID
-func (u *UserService) GetUserDetails(userID string) (*models.User, error) {
-	return u.UserRepo.GetUserByID(userID)
+func (u *UserService) GetUserDetails(userEmail string) (*models.User, error) {
+	return u.UserRepo.GetUserByEmail(userEmail)
 }
 
 // GetUserQRCode fetches the path of the user's QR code by ID
-func (u *UserService) GetUserQRCode(userID string) (string, error) {
-	user, err := u.UserRepo.GetUserByID(userID)
+func (u *UserService) GetUserQRCode(userEmail string) (string, error) {
+	user, err := u.UserRepo.GetUserByEmail(userEmail)
 	if err != nil {
 		return "", err
 	}
 
 	// Check if the QR code exists
-	qrCodePath := string(user.QR)
-	if _, err := os.Stat(qrCodePath); os.IsNotExist(err) {
-		return "", fmt.Errorf("QR code not found for user %s", userID)
+	qrCodeURL := user.Details.QRCodeURL
+
+	if _, err := os.Stat(qrCodeURL); os.IsNotExist(err) {
+		return "", fmt.Errorf("QR code not found for user %s", userEmail)
 	}
 
-	return qrCodePath, nil
+	return qrCodeURL, nil
 }

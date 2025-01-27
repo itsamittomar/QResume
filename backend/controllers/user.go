@@ -63,10 +63,10 @@ func (u *UserController) UpdateDetails(c *gin.Context) {
 
 // GetUserDetails fetches user details based on user-id
 func (u *UserController) GetUserDetails(c *gin.Context) {
-	userID := c.Param("user-id")
+	userEmail := c.Param("user-email")
 
 	// Call the service to get user details
-	userDetails, err := u.UserService.GetUserDetails(userID)
+	userDetails, err := u.UserService.GetUserDetails(userEmail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -77,10 +77,9 @@ func (u *UserController) GetUserDetails(c *gin.Context) {
 
 // GetUserQRCode fetches the user's QR code based on user-id
 func (u *UserController) GetUserQRCode(c *gin.Context) {
-	userID := c.Param("user-id")
-
-	// Call the service to get the user's QR code
-	qrCode, err := u.UserService.GetUserQRCode(userID)
+	userEmail := c.Param("user-email")
+	// Fetch the QR code
+	qrCode, err := u.UserService.GetUserQRCode(userEmail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
