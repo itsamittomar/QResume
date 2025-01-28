@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
 import './App.css';
 
-const backendUrl = "http://localhost:8080"; // Example URL, change for login as needed
+const backendUrl = "http://localhost:8080/api/users"; // Example URL, change for login as needed
 
 const App = () => {
   const [email, setEmail] = useState('');
@@ -33,7 +33,8 @@ const App = () => {
 
       if (response.ok) {
         alert('Login successful!');
-        navigate('/dashboard'); // Redirect to the dashboard or another page
+        // Pass email to Dashboard.js using state
+        navigate('/dashboard', { state: { email } });
       } else {
         setError(data.message || 'Something went wrong. Please try again.');
       }

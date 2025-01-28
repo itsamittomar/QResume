@@ -1,29 +1,29 @@
 package main
 
 import (
-	"log"
-	"os"
-	"fmt"
-	"time"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/cors" // Import CORS package
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"QResume/controllers"
+	"QResume/models"
 	"QResume/repo"
 	"QResume/service"
-	"QResume/models"
+	"fmt"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"log"
+	"os"
+	"time"
 )
 
 func main() {
 	// Retry database connection
 	var db *gorm.DB
 	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", 
-		os.Getenv("DB_USER"), 
-		os.Getenv("DB_PASSWORD"), 
-		os.Getenv("DB_HOST"), 
-		os.Getenv("DB_PORT"), 
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME"))
 
 	// Retry loop for 30 seconds
@@ -55,15 +55,18 @@ func main() {
 
 	// CORS middleware setup
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Allow your frontend origin
-		AllowMethods:     []string{"GET", "POST"}, // Allowed HTTP methods
+		AllowOrigins:     []string{"http://localhost:3000"},                   // Allow your frontend origin
+		AllowMethods:     []string{"GET", "POST", "PATCH"},                   // Allowed HTTP methods
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allowed headers
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length"},
 	}))
 
 	// Define routes
-	r.POST("/sign-on", userController.RegisterUser)
+	r.POST("api/users/sign-on", userController.RegisterUser)
+	r.PATCH("/api/users/details/:user-email", userController.UpdateDetails)
+	r.GET("/api/users/details/:user-email", userController.GetUserDetails)
+	r.GET("/api/users/my-qr/:user-email", userController.GetUserQRCode)
 
 	// Start the server
 	if err := r.Run(":8080"); err != nil {

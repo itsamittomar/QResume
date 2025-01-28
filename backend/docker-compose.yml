@@ -18,12 +18,18 @@ services:
       - DB_USER=root
       - DB_PASSWORD=password
       - DB_NAME=qresume
+      - QR_CODE_DIR=/app/qrcodes  # Define the QR code directory in the container
     ports:
       - "8080:8080"
     depends_on:
       - db
     networks:
       - app-network
+    # volumes:
+    #   - "D:/Project/QResume/backend/qrcodes:/app/qrcodes"  # Map the Windows directory to the container
+    volumes:
+      - ./qrcodes:/app/qrcodes:rw
+
 
 networks:
   app-network:
