@@ -21,7 +21,7 @@ func NewUserController(userService *service.UserService) *UserController {
 // RegisterUser handles the registration of a new user
 func (u *UserController) RegisterUser(c *gin.Context) {
 	// Define a struct to bind incoming JSON data
-	var userDetails contracts.Register
+	var userDetails contracts.UserDetails
 
 	// Bind JSON payload to the input struct
 	if err := c.ShouldBindJSON(&userDetails); err != nil {
