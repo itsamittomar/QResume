@@ -14,4 +14,5 @@ type UserDetails struct {
 	Leetcode      string `json:"leetcode"`
 	GeeksForGeeks string `json:"geeksforgeeks"`
 	Scaler        string `json:"scaler"`
+	Password string `json:"password" binding:"required,min=8"`
 }
