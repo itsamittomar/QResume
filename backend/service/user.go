@@ -26,17 +26,27 @@ func NewUserService(userRepo *repo.UserRepo) *UserService {
 }
 
 // RegisterUser handles the business logic for user registration
-func (u *UserService) RegisterUser(userDetails *contracts.Register) error {
+func (u *UserService) RegisterUser(userDetails *contracts.UserDetails) error {
 	// Hash the password
 	hashedPassword, err := u.HashPassword(userDetails.Password)
 	if err != nil {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
+	qrCodeURL, err := u.generateQRCode(userDetails)
+	if err != nil {
+		fmt.Println("Error generating QR code:", err)
+		return err
+	}
+
 	// Create a new user object
 	user := &models.User{
 		Email:    userDetails.Email,
 		Password: hashedPassword,
+		QR: []byte(qrCodeURL),
+		Details: models.Details{
+			QRCodeURL: qrCodeURL,
+		},
 	}
 
 	// Save the user via the repository
