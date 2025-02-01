@@ -5,7 +5,6 @@ import (
 	"QResume/models"
 	"QResume/repo"
 	"QResume/service"
-	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
