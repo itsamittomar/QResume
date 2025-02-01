@@ -26,6 +26,10 @@ body {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-image: url('/src/RadhaKrishna.jpg'); /* Or the path to your image */
+  background-size: cover; /* Makes the background image cover the entire body */
+  background-position: center; /* Keeps the image centered */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
 }
 
 h1 {
