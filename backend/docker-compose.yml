@@ -16,9 +16,9 @@ services:
     environment:
       - DB_HOST=dpg-cuf4ttggph6c73ftlsig-a  # Ensure the app is pointing to the 'db' service name
       - DB_PORT=5432  # Updated to PostgreSQL default port
-      - DB_USER=qresume_jvah_user  # Updated to match PostgreSQL user
+      - DB_USER=postgres  # Updated to match PostgreSQL user
       - DB_PASSWORD=iQ7Ze172ekfRnADNyYRoZMDmgTHvjGDA
-      - DB_NAME=qresume_jvah
+      - DB_NAME=qresume
       - QR_CODE_DIR=/app/qrcodes  # Define the QR code directory in the container
     ports:
       - "8080:8080"
