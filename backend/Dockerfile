@@ -4,16 +4,16 @@ FROM golang:1.21 AS builder
 WORKDIR /app
 
 # Copy go.mod and go.sum first to leverage Docker cache
-COPY go.mod go.sum ./
+COPY backend/go.mod backend/go.sum ./
 
 # Download dependencies
 RUN go mod tidy
 
 # Copy the rest of the Go source code
-COPY . .
+COPY backend/. .
 
 # Build a statically linked binary for Alpine
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build failed'; exit 1; }
 
 # Stage 2: Create a minimal image for running the app
 FROM alpine:latest

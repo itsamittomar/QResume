@@ -2,8 +2,6 @@ module QResume
 
 go 1.21.0
 
-toolchain go1.22.11
-
 require (
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.10.0
