@@ -3,11 +3,14 @@ FROM golang:1.21 AS builder
 
 WORKDIR /app
 
-# Copy the Go source code
-COPY . .
+# Copy go.mod and go.sum first to leverage Docker cache
+COPY go.mod go.sum ./
 
-# Download dependencies and build the binary
+# Download dependencies
 RUN go mod tidy
+
+# Copy the rest of the Go source code
+COPY . .
 
 # Build a statically linked binary for Alpine
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main .
