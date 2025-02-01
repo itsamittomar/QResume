@@ -18,6 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build
 # Stage 2: Create a minimal image for running the app
 FROM alpine:latest
 
+# Install necessary certificates to make requests
 RUN apk --no-cache add ca-certificates
 
 # Set the working directory
