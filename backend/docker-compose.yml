@@ -14,10 +14,10 @@ services:
   qresume-app:
     build: .
     environment:
-      - DB_HOST=db  # Ensure the app is pointing to the 'db' service name
+      - DB_HOST=dpg-cuerr83tq21c73emuta0-a  # Ensure the app is pointing to the 'db' service name
       - DB_PORT=5432  # Updated to PostgreSQL default port
       - DB_USER=postgres  # Updated to match PostgreSQL user
-      - DB_PASSWORD=password
+      - DB_PASSWORD=ydbCmI7NGgMcTFR6xUVWdJYjPzYiyNfD
       - DB_NAME=qresume
       - QR_CODE_DIR=/app/qrcodes  # Define the QR code directory in the container
     ports:
