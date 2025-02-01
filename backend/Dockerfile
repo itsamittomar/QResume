@@ -13,7 +13,7 @@ RUN go mod tidy
 COPY backend/. .
 
 # Build a statically linked binary for Alpine
-RUN GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build failed'; exit 1; }
+# RUN GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build failed'; exit 1; }
 
 # Stage 2: Create a minimal image for running the app
 FROM alpine:latest
