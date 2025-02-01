@@ -19,12 +19,17 @@ func main() {
 	// Retry database connection
 	var db *gorm.DB
 	var err error
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"))
+
+	// For local!
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+	// 	os.Getenv("DB_HOST"),
+	// 	os.Getenv("DB_USER"),
+	// 	os.Getenv("DB_PASSWORD"),
+	// 	os.Getenv("DB_NAME"),
+	// 	os.Getenv("DB_PORT"))
+
+	// For Prod
+	dsn := os.Getenv("DB_URL")
 
 	// Retry loop for 30 seconds
 	for i := 0; i < 30; i++ {

@@ -76,7 +76,7 @@ const App = () => {
               required
             />
           </div>
-          <button type="submit" disabled={loading}>
+          <button className="Button" type="submit" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>

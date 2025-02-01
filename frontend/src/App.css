@@ -21,7 +21,8 @@ body {
 
 .container {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
+  height: 800px;
   background-color: #fff;
   padding: 20px;
   border-radius: 10px;
@@ -61,9 +62,10 @@ input {
   border-radius: 5px;
 }
 
-button {
+.Button {
   padding: 12px;
   font-size: 1rem;
+  size: 5%;
   color: #fff;
   background-color: #007bff;
   border: none;
@@ -72,11 +74,11 @@ button {
   transition: background-color 0.3s;
 }
 
-button:disabled {
+.Button:disabled {
   background-color: #aaa;
 }
 
-button:hover:not(:disabled) {
+.Button:hover:not(:disabled) {
   background-color: #0056b3;
 }
 
