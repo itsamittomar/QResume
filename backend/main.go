@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 	"os"
@@ -19,16 +19,16 @@ func main() {
 	// Retry database connection
 	var db *gorm.DB
 	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"))
 
 	// Retry loop for 30 seconds
 	for i := 0; i < 30; i++ {
-		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
 			break
 		}
@@ -63,7 +63,7 @@ func main() {
 	}))
 
 	// Define routes
-	r.POST("api/users/sign-on", userController.RegisterUser)
+	r.POST("/api/users/sign-on", userController.RegisterUser)
 	r.PATCH("/api/users/details/:user-email", userController.UpdateDetails)
 	r.GET("/api/users/details/:user-email", userController.GetUserDetails)
 	r.GET("/api/users/my-qr/:user-email", userController.GetUserQRCode)

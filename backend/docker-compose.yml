@@ -1,12 +1,13 @@
 version: '3'
 services:
   db:
-    image: mysql:8.0
+    image: postgres:15
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: qresume
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: qresume
+      POSTGRES_USER: postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - app-network
 
@@ -14,8 +15,8 @@ services:
     build: .
     environment:
       - DB_HOST=db  # Ensure the app is pointing to the 'db' service name
-      - DB_PORT=3306
-      - DB_USER=root
+      - DB_PORT=5432  # Updated to PostgreSQL default port
+      - DB_USER=postgres  # Updated to match PostgreSQL user
       - DB_PASSWORD=password
       - DB_NAME=qresume
       - QR_CODE_DIR=/app/qrcodes  # Define the QR code directory in the container
@@ -25,11 +26,8 @@ services:
       - db
     networks:
       - app-network
-    # volumes:
-    #   - "D:/Project/QResume/backend/qrcodes:/app/qrcodes"  # Map the Windows directory to the container
     volumes:
       - ./qrcodes:/app/qrcodes:rw
-
 
 networks:
   app-network:
