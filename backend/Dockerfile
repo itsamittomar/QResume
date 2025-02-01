@@ -12,13 +12,15 @@ RUN go mod tidy
 # Copy the rest of the Go source code
 COPY backend/. .
 
+# List files in /app for debugging
+RUN ls -alh /app
+
 # Build a statically linked binary for Alpine
-# RUN GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build failed'; exit 1; }
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o main . || { echo 'Build failed'; exit 1; }
 
 # Stage 2: Create a minimal image for running the app
 FROM alpine:latest
 
-# Install necessary certificates to make requests
 RUN apk --no-cache add ca-certificates
 
 # Set the working directory
